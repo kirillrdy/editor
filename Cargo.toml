@@ -1,0 +1,10 @@
+[package]
+name = "editor"
+version = "0.1.0"
+authors = ["Kirill Radzikhovskyy <kirillrdy@gmail.com>"]
+
+[dependencies]
+cairo-rs = "*"
+gtk = "*"
+gdk = "*"
+time = "*"
