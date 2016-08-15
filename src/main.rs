@@ -33,8 +33,7 @@ fn main() {
 
         println!("{}", time::now() - now);
         Inhibit(false)
-        }
-    );
+    });
 
     window.set_default_size(width, height);
 
