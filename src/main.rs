@@ -8,29 +8,10 @@ use gtk::DrawingArea;
 
 use cairo::enums::{FontSlant, FontWeight};
 use cairo::Context;
-    use gdk::enums::modifier_type;
-
-    // make moving clones into closures more convenient
-    macro_rules! clone {
-        (@param _) => ( _ );
-        (@param $x:ident) => ( $x );
-        ($($n:ident),+ => move || $body:expr) => (
-            {
-                $( let $n = $n.clone(); )+
-                move || $body
-            }
-        );
-        ($($n:ident),+ => move |$($p:tt),+| $body:expr) => (
-            {
-                $( let $n = $n.clone(); )+
-                move |$(clone!(@param $p),)+| $body
-            }
-        );
-    }
-
+use gdk::enums::modifier_type;
 
 fn main() {
-    gtk::init();
+    gtk::init().unwrap();
 
     drawable(500, 500, |_, cr| {
 
@@ -75,17 +56,17 @@ pub fn drawable<F>(width: i32, height: i32, draw_fn: F)
         Inhibit(false)
     });
 
-    window.connect_key_press_event(move |_, key|  {
-            let keyval = key.as_ref().keyval;
-            let keystate = key.as_ref().state;
+    window.connect_key_press_event(move |_, key| {
+        let keyval = key.as_ref().keyval;
+        let keystate = key.as_ref().state;
 
-            println!("key pressed: {} / {:?}", keyval, keystate);
+        println!("key pressed: {} / {:?}", keyval, keystate);
 
-            if keystate.intersects(modifier_type::ControlMask) {
-                println!("You pressed Ctrl!");
-            }
+        if keystate.intersects(modifier_type::ControlMask) {
+            println!("You pressed Ctrl!");
+        }
 
-            Inhibit(false)
+        Inhibit(false)
     });
 
     window.add(&drawing_area);
