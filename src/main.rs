@@ -12,19 +12,9 @@ use gdk::enums::modifier_type;
 
 fn main() {
     gtk::init().unwrap();
-    drawable(500, 500);
-    gtk::main();
-}
+    let width = 500;
+    let height = 500;
 
-fn put_char(cairo_context: &Context, row: i64, column: i64, text: String) {
-    let x = column as f64 * 7.7;
-    let y = (row * 10) + 10;
-    cairo_context.move_to(x, y as f64);
-    cairo_context.show_text(text.as_str());
-    cairo_context.set_source_rgb(1.0, 0.0, 0.0);
-}
-
-pub fn drawable(width: i32, height: i32) {
     let window = gtk::Window::new(gtk::WindowType::Toplevel);
     let drawing_area = Box::new(DrawingArea::new)();
 
@@ -68,4 +58,14 @@ pub fn drawable(width: i32, height: i32) {
 
     window.add(&drawing_area);
     window.show_all();
+
+    gtk::main();
+}
+
+fn put_char(cairo_context: &Context, row: i64, column: i64, text: String) {
+    let x = column as f64 * 7.7;
+    let y = (row * 10) + 10;
+    cairo_context.move_to(x, y as f64);
+    cairo_context.show_text(text.as_str());
+    cairo_context.set_source_rgb(1.0, 0.0, 0.0);
 }
