@@ -12,8 +12,23 @@ use gdk::enums::modifier_type;
 
 fn main() {
     gtk::init().unwrap();
+    drawable(500, 500);
+    gtk::main();
+}
 
-    drawable(500, 500, |_, cr| {
+fn put_char(cairo_context: &Context, row: i64, column: i64, text: String) {
+    let x = column as f64 * 7.7;
+    let y = (row * 10) + 10;
+    cairo_context.move_to(x, y as f64);
+    cairo_context.show_text(text.as_str());
+    cairo_context.set_source_rgb(1.0, 0.0, 0.0);
+}
+
+pub fn drawable(width: i32, height: i32) {
+    let window = gtk::Window::new(gtk::WindowType::Toplevel);
+    let drawing_area = Box::new(DrawingArea::new)();
+
+    drawing_area.connect_draw(|_, cr| {
 
         cr.select_font_face("Mono", FontSlant::Normal, FontWeight::Normal);
         cr.set_font_size(14.0);
@@ -28,26 +43,8 @@ fn main() {
 
         println!("{}", time::now() - now);
         Inhibit(false)
-    });
-
-    gtk::main();
-}
-
-fn put_char(cairo_context: &Context, row: i64, column: i64, text: String) {
-    let x = column as f64 * 7.7;
-    let y = (row * 10) + 10;
-    cairo_context.move_to(x, y as f64);
-    cairo_context.show_text(text.as_str());
-    cairo_context.set_source_rgb(1.0, 0.0, 0.0);
-}
-
-pub fn drawable<F>(width: i32, height: i32, draw_fn: F)
-    where F: Fn(&DrawingArea, &Context) -> Inhibit + 'static
-{
-    let window = gtk::Window::new(gtk::WindowType::Toplevel);
-    let drawing_area = Box::new(DrawingArea::new)();
-
-    drawing_area.connect_draw(draw_fn);
+        }
+    );
 
     window.set_default_size(width, height);
 
