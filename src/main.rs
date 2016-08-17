@@ -10,6 +10,9 @@ use cairo::enums::{FontSlant, FontWeight};
 use cairo::Context;
 use gdk::enums::modifier_type;
 
+use std::sync::mpsc::sync_channel;
+use std::thread;
+
 fn main() {
     gtk::init().unwrap();
     let width = 500;
@@ -18,17 +21,29 @@ fn main() {
     let window = gtk::Window::new(gtk::WindowType::Toplevel);
     let drawing_area = Box::new(DrawingArea::new)();
 
-    drawing_area.connect_draw(|_, cr| {
+    let mut data = vec!["h", "e", "l"];
+
+    let (sender, reciever) = sync_channel(1);
+
+    thread::spawn(||{
+        loop {
+            let a = reciever.recv().unwrap();
+            println!("{}",a);
+        }
+    });
+
+    drawing_area.connect_draw(move |_, cr| {
 
         cr.select_font_face("Mono", FontSlant::Normal, FontWeight::Normal);
         cr.set_font_size(14.0);
 
         let now = time::now();
+        let mut row = 0;
+        let mut column = 0;
 
-        for column in 0..100 {
-            for row in 0..100 {
-                put_char(cr, row, column, "a".to_string());
-            }
+        for single_letter in &data {
+            put_char(cr, row, column, single_letter.to_string());
+            column = column + 1;
         }
 
         println!("{}", time::now() - now);
@@ -46,6 +61,7 @@ fn main() {
         let keyval = key.as_ref().keyval;
         let keystate = key.as_ref().state;
 
+        sender.send(keyval).unwrap();
         println!("key pressed: {} / {:?}", keyval, keystate);
 
         if keystate.intersects(modifier_type::ControlMask) {
