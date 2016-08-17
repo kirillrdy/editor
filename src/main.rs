@@ -25,10 +25,10 @@ fn main() {
 
     let (sender, reciever) = sync_channel(1);
 
-    thread::spawn(||{
+    thread::spawn(move ||{
         loop {
             let a = reciever.recv().unwrap();
-            println!("{}",a);
+            println!("Got from chan {}",a);
         }
     });
 
@@ -62,11 +62,11 @@ fn main() {
         let keystate = key.as_ref().state;
 
         sender.send(keyval).unwrap();
-        println!("key pressed: {} / {:?}", keyval, keystate);
+        //println!("key pressed: {} / {:?}", keyval, keystate);
 
-        if keystate.intersects(modifier_type::ControlMask) {
-            println!("You pressed Ctrl!");
-        }
+        //if keystate.intersects(modifier_type::ControlMask) {
+        //    println!("You pressed Ctrl!");
+        //}
 
         Inhibit(false)
     });
