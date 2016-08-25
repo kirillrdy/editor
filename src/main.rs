@@ -12,6 +12,9 @@ use gdk::enums::modifier_type;
 
 use std::sync::mpsc::sync_channel;
 use std::thread;
+use std::sync::Arc;
+use std::sync::Mutex;
+
 
 fn main() {
     gtk::init().unwrap();
@@ -22,16 +25,9 @@ fn main() {
     let drawing_area = Box::new(DrawingArea::new)();
 
     let mut data = vec!["h", "e", "l"];
+    let mut data = Arc::new(Mutex::new(data));
 
-    let (sender, reciever) = sync_channel(1);
-
-    thread::spawn(move ||{
-        loop {
-            let a = reciever.recv().unwrap();
-            println!("Got from chan {}",a);
-        }
-    });
-
+    let for_drawing = data.clone();
     drawing_area.connect_draw(move |_, cr| {
 
         cr.select_font_face("Mono", FontSlant::Normal, FontWeight::Normal);
@@ -41,7 +37,8 @@ fn main() {
         let mut row = 0;
         let mut column = 0;
 
-        for single_letter in &data {
+        let data = for_drawing.lock().unwrap();
+        for single_letter in data.iter() {
             put_char(cr, row, column, single_letter.to_string());
             column = column + 1;
         }
@@ -57,11 +54,18 @@ fn main() {
         Inhibit(false)
     });
 
+    let mut writer = data.clone();
     window.connect_key_press_event(move |_, key| {
         let keyval = key.as_ref().keyval;
         let keystate = key.as_ref().state;
 
-        sender.send(keyval).unwrap();
+
+        let mut guy = writer.lock().unwrap();
+        guy.push("a");
+
+        let key_pressed = keyval as u8 as char;
+        let key_pressed = format!("{}", key_pressed).as_str();
+        guy.push(key_pressed.clone());
         //println!("key pressed: {} / {:?}", keyval, keystate);
 
         //if keystate.intersects(modifier_type::ControlMask) {
