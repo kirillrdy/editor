@@ -24,7 +24,7 @@ fn main() {
     let window = gtk::Window::new(gtk::WindowType::Toplevel);
     let drawing_area = Box::new(DrawingArea::new)();
 
-    let mut data = vec!["h", "e", "l"];
+    let mut data: Vec<String> = Vec::new();
     let mut data = Arc::new(Mutex::new(data));
 
     let for_drawing = data.clone();
@@ -54,18 +54,22 @@ fn main() {
         Inhibit(false)
     });
 
+    window.add(&drawing_area);
+    window.show_all();
+
     let mut writer = data.clone();
+    let w = window.clone();
     window.connect_key_press_event(move |_, key| {
         let keyval = key.as_ref().keyval;
         let keystate = key.as_ref().state;
 
 
         let mut guy = writer.lock().unwrap();
-        guy.push("a");
 
         let key_pressed = keyval as u8 as char;
-        let key_pressed = format!("{}", key_pressed).as_str();
+        let key_pressed = format!("{}", key_pressed);
         guy.push(key_pressed.clone());
+        w.queue_draw_area(0,0,100000,10000);
         //println!("key pressed: {} / {:?}", keyval, keystate);
 
         //if keystate.intersects(modifier_type::ControlMask) {
@@ -75,8 +79,7 @@ fn main() {
         Inhibit(false)
     });
 
-    window.add(&drawing_area);
-    window.show_all();
+
 
     gtk::main();
 }
