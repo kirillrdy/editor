@@ -20,7 +20,7 @@ fn main() {
     let height = 500;
 
     let window = gtk::Window::new(gtk::WindowType::Toplevel);
-    let drawing_area = Box::new(DrawingArea::new)();
+    let drawing_area = DrawingArea::new();
 
     let buffer: Vec<String> = Vec::new();
     let buffer = Arc::new(Mutex::new(buffer));
