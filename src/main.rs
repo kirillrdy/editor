@@ -1,6 +1,7 @@
 extern crate cairo;
 extern crate gtk;
 extern crate gdk;
+extern crate gdk_sys;
 extern crate time;
 
 use gtk::prelude::*;
@@ -8,11 +9,9 @@ use gtk::DrawingArea;
 
 use cairo::enums::{FontSlant, FontWeight};
 use cairo::Context;
-use gdk::enums::modifier_type;
 
 use std::sync::Arc;
 use std::sync::Mutex;
-
 
 fn main() {
     gtk::init().unwrap();
@@ -73,7 +72,7 @@ fn main() {
         window_to_redraw.queue_draw_area(0,0,100000,10000);
         println!("key pressed: {} / {:?}", keyval, keystate);
 
-        if keystate.intersects(modifier_type::ControlMask) {
+        if keystate.intersects(gdk_sys::GDK_CONTROL_MASK) {
            println!("You pressed Ctrl!");
         }
 

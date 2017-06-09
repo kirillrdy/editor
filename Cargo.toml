@@ -7,4 +7,5 @@ authors = ["Kirill Radzikhovskyy <kirillrdy@gmail.com>"]
 cairo-rs = "*"
 gtk = "*"
 gdk = "*"
+gdk-sys = "*"
 time = "*"
