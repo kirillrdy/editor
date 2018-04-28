@@ -1,8 +1,6 @@
 extern crate cairo;
 extern crate gtk;
-extern crate gdk;
 extern crate gdk_sys;
-extern crate time;
 
 use gtk::prelude::*;
 use gtk::DrawingArea;
@@ -12,6 +10,27 @@ use cairo::Context;
 
 use std::sync::Arc;
 use std::sync::Mutex;
+
+use std::time;
+
+const FONT_SIZE: i32 = 14;
+
+//TODO move this to a library
+pub fn format_duration(duration: time::Duration) -> String {
+    if duration.as_secs() < 1 {
+        if duration.subsec_nanos() < 1000 {
+            format!("{}n", duration.subsec_nanos())
+        } else if duration.subsec_nanos() < 1000 * 1000 {
+            format!("{}µ", duration.subsec_nanos() as f64 / 1000.)
+        } else if duration.subsec_nanos() < 1000 * 1000 * 1000 {
+            format!("{}m", duration.subsec_nanos() as f64 / 1000000.)
+        } else {
+            format!("{:?}", duration)
+        }
+    } else {
+        format!("{:?}", duration)
+    }
+}
 
 fn main() {
     gtk::init().unwrap();
@@ -30,7 +49,7 @@ fn main() {
         cr.select_font_face("Mono", FontSlant::Normal, FontWeight::Normal);
         cr.set_font_size(14.0);
 
-        let now = time::now();
+        let start = time::SystemTime::now();
         let mut row = 0;
         let mut column = 0;
 
@@ -38,12 +57,12 @@ fn main() {
         for single_letter in data.iter() {
             put_char(cr, row, column, single_letter.to_string());
             column = column + 1;
-            if single_letter == "\n" {
-                row = row + 1
-            }
+            // if single_letter == 65293 {
+            //     row = row + 1
+            // }
         }
 
-        println!("{}", time::now() - now);
+        println!("{}", format_duration(start.elapsed().unwrap()));
         Inhibit(false)
     });
 
@@ -72,6 +91,9 @@ fn main() {
         window_to_redraw.queue_draw_area(0,0,100000,10000);
         println!("key pressed: {} / {:?}", keyval, keystate);
 
+        // if key_pressed == 65293 {
+        //     println!("Enter");
+        // }
         if keystate.intersects(gdk_sys::GDK_CONTROL_MASK) {
            println!("You pressed Ctrl!");
         }
@@ -88,7 +110,7 @@ fn main() {
 
 fn put_char(cairo_context: &Context, row: i64, column: i64, text: String) {
     let x = column as f64 * 7.7;
-    let y = (row * 10) + 10;
+    let y = (row * 14) + 14; //looks like 14 is magic
     cairo_context.move_to(x, y as f64);
     cairo_context.show_text(text.as_str());
     cairo_context.set_source_rgb(1.0, 0.0, 0.0);
