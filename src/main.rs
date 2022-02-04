@@ -1,6 +1,6 @@
 extern crate cairo;
-extern crate gtk;
 extern crate gdk_sys;
+extern crate gtk;
 
 use gtk::prelude::*;
 use gtk::DrawingArea;
@@ -13,7 +13,7 @@ use std::sync::Mutex;
 
 use std::time;
 
-const FONT_SIZE: i32 = 14;
+const FONT_SIZE: f64 = 14.0;
 
 //TODO move this to a library
 pub fn format_duration(duration: time::Duration) -> String {
@@ -45,12 +45,11 @@ fn main() {
 
     let buffer_for_drawing = buffer.clone();
     drawing_area.connect_draw(move |_, cr| {
-
         cr.select_font_face("Mono", FontSlant::Normal, FontWeight::Normal);
-        cr.set_font_size(14.0);
+        cr.set_font_size(FONT_SIZE);
 
         let start = time::SystemTime::now();
-        let mut row = 0;
+        let row = 0;
         let mut column = 0;
 
         let data = buffer_for_drawing.lock().unwrap();
@@ -73,13 +72,11 @@ fn main() {
         Inhibit(false)
     });
 
-
     let writer = buffer.clone();
     let window_to_redraw = window.clone();
     window.connect_key_press_event(move |_, key| {
         let keyval = key.as_ref().keyval;
         let keystate = key.as_ref().state;
-
 
         let mut guy = writer.lock().unwrap();
 
@@ -88,19 +85,18 @@ fn main() {
         guy.push(key_pressed.clone());
 
         //TODO fix width etc
-        window_to_redraw.queue_draw_area(0,0,100000,10000);
+        window_to_redraw.queue_draw_area(0, 0, 100000, 10000);
         println!("key pressed: {} / {:?}", keyval, keystate);
 
         // if key_pressed == 65293 {
         //     println!("Enter");
         // }
         if keystate.intersects(gdk_sys::GDK_CONTROL_MASK) {
-           println!("You pressed Ctrl!");
+            println!("You pressed Ctrl!");
         }
 
         Inhibit(false)
     });
-
 
     window.add(&drawing_area);
     window.show_all();
