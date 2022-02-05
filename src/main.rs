@@ -42,29 +42,29 @@ fn main() {
 
     let buffer: Vec<String> = Vec::new();
     let buffer = Arc::new(Mutex::new(buffer));
+    {
+        let buffer = buffer.clone();
+        drawing_area.connect_draw(move |_, cr| {
+            cr.select_font_face("Mono", FontSlant::Normal, FontWeight::Normal);
+            cr.set_font_size(FONT_SIZE);
 
-    let buffer_for_drawing = buffer.clone();
-    drawing_area.connect_draw(move |_, cr| {
-        cr.select_font_face("Mono", FontSlant::Normal, FontWeight::Normal);
-        cr.set_font_size(FONT_SIZE);
+            let start = time::SystemTime::now();
+            let mut row = 0;
+            let mut column = 0;
 
-        let start = time::SystemTime::now();
-        let row = 0;
-        let mut column = 0;
+            let data = buffer.lock().unwrap();
+            for single_letter in data.iter() {
+                put_char(cr, row, column, single_letter.to_string());
+                column = column + 1;
+                if single_letter == "65513" {
+                    row = row + 1
+                }
+            }
 
-        let data = buffer_for_drawing.lock().unwrap();
-        for single_letter in data.iter() {
-            put_char(cr, row, column, single_letter.to_string());
-            column = column + 1;
-            // if single_letter == 65293 {
-            //     row = row + 1
-            // }
-        }
-
-        println!("{}", format_duration(start.elapsed().unwrap()));
-        Inhibit(false)
-    });
-
+            println!("{:?}", start.elapsed().unwrap());
+            Inhibit(false)
+        });
+    };
     window.set_default_size(width, height);
 
     window.connect_delete_event(|_, _| {
@@ -78,11 +78,11 @@ fn main() {
         let keyval = key.as_ref().keyval;
         let keystate = key.as_ref().state;
 
-        let mut guy = writer.lock().unwrap();
+        let mut writer = writer.lock().unwrap();
 
         let key_pressed = keyval as u8 as char;
         let key_pressed = format!("{}", key_pressed);
-        guy.push(key_pressed.clone());
+        writer.push(key_pressed.clone());
 
         //TODO fix width etc
         window_to_redraw.queue_draw_area(0, 0, 100000, 10000);
